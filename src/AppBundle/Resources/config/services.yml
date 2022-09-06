@@ -1,0 +1,18 @@
+services:
+    app.admin.category:
+        class: AppBundle\Admin\CategoryAdmin
+        arguments: [~, AppBundle\Entity\Category, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Category }
+
+    app.admin.job:
+        class: AppBundle\Admin\JobAdmin
+        arguments: [~, AppBundle\Entity\Job, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Job }
+
+    pp.admin.job:
+        class: AppBundle\Admin\JobAdmin
+        arguments: [ ~, AppBundle\Entity\Job, AppBundle:JobAdmin ]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Jobeet, label: Jobs }

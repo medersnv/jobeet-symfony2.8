@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\Entity;
+namespace AppBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 
@@ -21,24 +21,24 @@ class JobRepository extends EntityRepository
             ->setParameter('activated', 1)
             ->orderBy('j.expiresAt', 'DESC');
 
-        if($max)
-        {
+        if($max) {
             $qb->setMaxResults($max);
         }
+
         if($offset) {
             $qb->setFirstResult($offset);
         }
-        if($category_id)
-        {
+
+        if($category_id) {
             $qb->andWhere('j.category = :category_id')
-               ->setParameter('category_id', $category_id);
+                ->setParameter('category_id', $category_id);
         }
 
         $query = $qb->getQuery();
 
         return $query->getResult();
     }
-    
+
     public function getActiveJob($id)
     {
         $query = $this->createQueryBuilder('j')
@@ -59,7 +59,7 @@ class JobRepository extends EntityRepository
 
         return $job;
     }
-    
+
     public function countActiveJobs($category_id = null)
     {
         $qb = $this->createQueryBuilder('j')
@@ -72,14 +72,16 @@ class JobRepository extends EntityRepository
         if($category_id)
         {
             $qb->andWhere('j.category = :category_id')
-               ->setParameter('category_id', $category_id);
+                ->setParameter('category_id', $category_id);
         }
 
         $query = $qb->getQuery();
 
         return $query->getSingleScalarResult();
+
+
     }
-    
+
     public function cleanup($days)
     {
         $query = $this->createQueryBuilder('j')
@@ -90,5 +92,25 @@ class JobRepository extends EntityRepository
             ->getQuery();
 
         return $query->execute();
+    }
+
+    public function getLatestPost()
+    {
+        $query = $this->createQueryBuilder('j')
+            ->where('j.expiresAt > :date')
+            ->setParameter('date', date('Y-m-d H:i:s', time()))
+            ->andWhere('j.isActivated = :activated')
+            ->setParameter('activated', 1)
+            ->orderBy('j.expiresAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery();
+
+        try {
+            $job = $query->getSingleResult();
+        } catch (\Doctrine\Orm\NoResultException $e) {
+            $job = null;
+        }
+
+        return $job;
     }
 }

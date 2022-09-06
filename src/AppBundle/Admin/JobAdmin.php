@@ -1,7 +1,7 @@
 <?php
 
 namespace AppBundle\Admin;
- 
+
 use AppBundle\Entity\Job;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\ListMapper;
@@ -9,7 +9,7 @@ use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Sonata\AdminBundle\Validator\ErrorElement;
 use Sonata\AdminBundle\Form\FormMapper;
- 
+
 class JobAdmin extends AbstractAdmin
 {
     // setup the defaut sort column and order
@@ -17,7 +17,7 @@ class JobAdmin extends AbstractAdmin
         '_sort_order' => 'DESC',
         '_sort_by' => 'expiresAt'
     );
- 
+
     protected function configureFormFields(FormMapper $formMapper)
     {
         $formMapper
@@ -35,7 +35,7 @@ class JobAdmin extends AbstractAdmin
             ->add('isActivated')
         ;
     }
- 
+
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
@@ -49,7 +49,7 @@ class JobAdmin extends AbstractAdmin
             ->add('expiresAt')
         ;
     }
- 
+
     protected function configureListFields(ListMapper $listMapper)
     {
         $listMapper
@@ -70,7 +70,7 @@ class JobAdmin extends AbstractAdmin
             ))
         ;
     }
- 
+
     protected function configureShowFields(ShowMapper $showMapper)
     {
         $showMapper
@@ -90,7 +90,7 @@ class JobAdmin extends AbstractAdmin
             ->add('expiresAt')
         ;
     }
-    
+
     public function getBatchActions()
     {
         // retrieve the default (currently only the delete action) actions

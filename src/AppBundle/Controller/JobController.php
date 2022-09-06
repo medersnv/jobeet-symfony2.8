@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Category;
 use AppBundle\Entity\Job;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -28,13 +29,18 @@ class JobController extends Controller
         $categories = $em->getRepository('AppBundle:Category')->getWithJobs();
 
         foreach ($categories as $category) {
-            $category->setActiveJobs($em->getRepository('AppBundle:Job')->getActiveJobs($category->getId(), $this->container->getParameter('max_jobs_on_homepage')));
-            $category->setMoreJobs($em->getRepository('AppBundle:Job')->countActiveJobs($category->getId()) - $this->container->getParameter('max_jobs_on_homepage'));
+            $category->setActiveJobs($em->getRepository('AppBundle:Job')->getActiveJobs($category->getId(),
+                $this->container->getParameter('max_jobs_on_homepage')));
+            $category->setMoreJobs($em->getRepository('AppBundle:Job')->countActiveJobs($category->getId()) -
+                $this->container->getParameter('max_jobs_on_homepage'));
         }
 
-        return $this->render('job/index.html.twig', array(
-            'categories' => $categories
-        ));
+        $format = $this->getRequest()->getRequestFormat();
+        return $this->render('AppBundle:Job:index.'.$format.'.twig', array(
+            'categories' => $categories,
+            'lastUpdated' => $em->getRepository('AppBundle:Job')->getLatestPost()->getCreatedAt()->format(DATE_ATOM),
+            'feedId' => sha1($this->get('router')->generate('job_index', array('_format'=> 'atom'), true)),
+));
     }
 
     /**
@@ -47,10 +53,13 @@ class JobController extends Controller
     {
         $job = new Job();
         $job->setType('full-time');
+
         $form = $this->createForm('AppBundle\Form\JobType', $job);
         $form->handleRequest($request);
 
+
         if ($form->isSubmitted() && $form->isValid()) {
+
             $em = $this->getDoctrine()->getManager();
             $em->persist($job);
             $em->flush();
@@ -62,7 +71,7 @@ class JobController extends Controller
                 'position' => $job->getPositionSlug()));
         }
 
-        return $this->render('job/new.html.twig', array(
+        return $this->render('AppBundle:Job:new.html.twig', array(
             'job' => $job,
             'form' => $form->createView(),
         ));
@@ -77,6 +86,28 @@ class JobController extends Controller
      */
     public function showAction(Job $job)
     {
+        $session = $this->getRequest()->getSession();
+
+        // fetch jobs already stored in the job history
+        $jobsArray = $session->get('job_history', array());
+
+        // store the job as an array so we can put it in the session and avoid entity serialize errors
+        $jobArray = array(
+            'id' => $job->getId(),
+            'position' => $job->getPosition(),
+            'company' => $job->getCompany(),
+            'companySlug' => $job->getCompanySlug(),
+            'locationSlug' => $job->getLocationSlug(),
+            'positionSlug' => $job->getPositionSlug());
+
+        if (!in_array($jobArray, $jobsArray)) {
+            // add the current job at the beginning of the array
+            array_unshift($jobsArray, $jobArray);
+
+            // store the new job history back into the session
+            $session->set('job_history', array_slice($jobsArray, 0, 3));
+        }
+
         $deleteForm = $this->createDeleteForm($job);
 
         return $this->render('job/show.html.twig', array(
@@ -84,7 +115,7 @@ class JobController extends Controller
             'delete_form' => $deleteForm->createView(),
         ));
     }
-    
+
     /**
      * Finds and displays the preview page for a job entity.
      *
@@ -98,7 +129,7 @@ class JobController extends Controller
         $publishForm = $this->createPublishForm($job);
         $extendForm = $this->createExtendForm($job);
 
-        return $this->render('job/show.html.twig', array(
+        return $this->render('AppBundle:Job:show.html.twig', array(
             'job' => $job,
             'delete_form' => $deleteForm->createView(),
             'publish_form' => $publishForm->createView(),
@@ -114,10 +145,17 @@ class JobController extends Controller
      */
     public function editAction(Request $request, Job $job)
     {
+        if ($request->getMethod() != Request::METHOD_POST) {
+            if(is_file($this->getParameter('jobs_directory').'/'.$job->getLogo())) {
+                $job->setLogo(
+                    new File($this->getParameter('jobs_directory').'/'.$job->getLogo())
+                );
+            }
+        }
         if ($job->getIsActivated()) {
             throw $this->createNotFoundException('Job is activated and cannot be edited.');
         }
-  
+
         $deleteForm = $this->createDeleteForm($job);
         $editForm = $this->createForm('AppBundle\Form\JobType', $job);
         $editForm->handleRequest($request);
@@ -132,7 +170,7 @@ class JobController extends Controller
                 'position' => $job->getPositionSlug()));
         }
 
-        return $this->render('job/edit.html.twig', array(
+        return $this->render('AppBundle:Job:edit.html.twig', array(
             'job' => $job,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
@@ -142,7 +180,7 @@ class JobController extends Controller
     /**
      * Deletes a job entity.
      *
-     * @Route("/job/{token}/delete", name="job_delete")
+     * @Route("/job/{token}", name="job_delete")
      * @Method("DELETE")
      */
     public function deleteAction(Request $request, Job $job)
@@ -172,13 +210,13 @@ class JobController extends Controller
             ->setAction($this->generateUrl('job_delete', array('token' => $job->getToken())))
             ->setMethod('DELETE')
             ->getForm()
-        ;
+            ;
     }
-    
+
     /**
      * Publishes a job entity.
      *
-     * @Route("/job/{token}/publish", name="job_publish")
+     * @Route("/job/{token}", name="job_publish")
      * @Method("POST")
      */
     public function publishAction(Request $request, Job $job)
@@ -191,7 +229,7 @@ class JobController extends Controller
             $job->publish();
             $em->persist($job);
             $em->flush();
-            
+
             $this->addFlash('notice', 'Your job is now online for 30 days.');
         }
 
@@ -201,7 +239,7 @@ class JobController extends Controller
             'location' => $job->getLocationSlug(),
             'position' => $job->getPositionSlug()));
     }
-    
+
     /**
      * Creates a form to publish a job entity.
      *
@@ -215,9 +253,9 @@ class JobController extends Controller
             ->add('token', 'hidden')
             ->setMethod('POST')
             ->getForm()
-        ;
+            ;
     }
-    
+
     /**
      * Extends a job entity.
      *
@@ -239,7 +277,8 @@ class JobController extends Controller
             $em->persist($job);
             $em->flush();
 
-            $this->addFlash('notice', sprintf('Your job validity has been extended until %s.', $job->getExpiresAt()->format('m/d/Y')));
+            $this->addFlash('notice', sprintf('Your job validity has been extended until %s.',
+                $job->getExpiresAt()->format('m/d/Y')));
         }
 
         return $this->redirectToRoute('job_preview', array(
@@ -255,6 +294,7 @@ class JobController extends Controller
             ->add('token', 'hidden')
             ->setMethod('POST')
             ->getForm()
-        ;
+            ;
     }
+
 }

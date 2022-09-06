@@ -1,13 +1,13 @@
 <?php
 
 namespace AppBundle\Admin;
- 
+
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Validator\ErrorElement;
 use Sonata\AdminBundle\Form\FormMapper;
- 
+
 class CategoryAdmin extends AbstractAdmin
 {
     // setup the default sort column and order
@@ -15,7 +15,7 @@ class CategoryAdmin extends AbstractAdmin
         '_sort_order' => 'ASC',
         '_sort_by' => 'name'
     );
- 
+
     protected function configureFormFields(FormMapper $formMapper)
     {
         $formMapper
@@ -23,14 +23,14 @@ class CategoryAdmin extends AbstractAdmin
             ->add('slug')
         ;
     }
- 
+
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
             ->add('name')
         ;
     }
- 
+
     protected function configureListFields(ListMapper $listMapper)
     {
         $listMapper

@@ -17,31 +17,31 @@ class Affiliate
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
-    
+
     /**
      * @ORM\ManyToMany(targetEntity="Category", inversedBy="affiliates")
      * @ORM\JoinTable(name="affiliates_categories")
      */
     private $categories;
-    
+
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
      */
     private $url;
-    
+
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
      */
     private $email;
-    
+
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank()
      */
     private $token;
-    
+
     /**
      * @ORM\Column(type="datetime")
      * @Assert\NotBlank()
@@ -58,7 +58,7 @@ class Affiliate
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -81,7 +81,7 @@ class Affiliate
     /**
      * Get url
      *
-     * @return string 
+     * @return string
      */
     public function getUrl()
     {
@@ -104,7 +104,7 @@ class Affiliate
     /**
      * Get email
      *
-     * @return string 
+     * @return string
      */
     public function getEmail()
     {
@@ -127,7 +127,7 @@ class Affiliate
     /**
      * Get token
      *
-     * @return string 
+     * @return string
      */
     public function getToken()
     {
@@ -150,7 +150,7 @@ class Affiliate
     /**
      * Get createdAt
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreatedAt()
     {
@@ -183,13 +183,13 @@ class Affiliate
     /**
      * Get categories
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getCategories()
     {
         return $this->categories;
     }
-    
+
     /**
      * @ORM\PrePersist
      */
@@ -198,6 +198,17 @@ class Affiliate
         if(!$this->getCreatedAt())
         {
             $this->createdAt = new \DateTime();
+        }
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setTokenValue()
+    {
+        if(!$this->getToken())
+        {
+            $this->token = sha1($this->getEmail().rand(11111, 99999));
         }
     }
 }

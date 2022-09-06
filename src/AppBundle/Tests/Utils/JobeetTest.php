@@ -23,4 +23,3 @@ class JobeetTest extends TestCase
         }
     }
 }
-
