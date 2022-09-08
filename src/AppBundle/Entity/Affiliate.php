@@ -21,6 +21,7 @@ class Affiliate
     /**
      * @ORM\ManyToMany(targetEntity="Category", inversedBy="affiliates")
      * @ORM\JoinTable(name="affiliates_categories")
+     * @Assert\Count(min = 1)
      */
     private $categories;
 
@@ -38,13 +39,16 @@ class Affiliate
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Assert\NotBlank()
      */
     private $token;
 
     /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isActive;
+
+    /**
      * @ORM\Column(type="datetime")
-     * @Assert\NotBlank()
      */
     private $createdAt;
     /**
@@ -199,6 +203,29 @@ class Affiliate
         {
             $this->createdAt = new \DateTime();
         }
+    }
+
+    /**
+     * Set isActive
+     *
+     * @param boolean $isActive
+     * @return Affiliate
+     */
+    public function setIsActive($isActive)
+    {
+        $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * Get isActive
+     *
+     * @return boolean
+     */
+    public function getIsActive()
+    {
+        return $this->isActive;
     }
 
     /**

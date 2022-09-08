@@ -1,18 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="jobeet2@localhost" uuid="5c5b734f-3453-4b25-b257-57e6dbd40453">
+    <data-source source="LOCAL" name="jobeet4@localhost" uuid="2743f3ce-c718-45c8-94fe-90599c749c42">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/jobeet2</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="jobeet3@localhost" uuid="80451c35-41ab-471d-87ef-732968bbb79c">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/jobeet3</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/jobeet4</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

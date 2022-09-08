@@ -5,12 +5,14 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use AppBundle\Utils\Jobeet as Jobeet;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * @ORM\Entity()
  * @ORM\Table(name="job")
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Entity(repositoryClass="AppBundle\Repository\JobRepository")
+ * @JMS\ExclusionPolicy("all")
  */
 class Job
 {
@@ -18,6 +20,7 @@ class Job
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMS\Expose()
      */
     private $id;
 
@@ -32,48 +35,54 @@ class Job
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
      * @Assert\Choice(callback="getTypeValues")
+     * @JMS\Expose()
      */
     private $type;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
+     * @JMS\Expose()
      */
     private $company;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @JMS\Expose()
      */
     private $logo;
 
-    private $file;
-
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @JMS\Expose()
      */
     private $url;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
+     * @JMS\Expose()
      */
     private $position;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
+     * @JMS\Expose()
      */
     private $location;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank()
+     * @JMS\Expose()
      */
     private $description;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank()
+     * @JMS\Expose()
      */
     private $howToApply;
 
@@ -101,6 +110,7 @@ class Job
 
     /**
      * @ORM\Column(type="datetime")
+     * @JMS\Expose()
      */
     private $expiresAt;
 
@@ -114,6 +124,10 @@ class Job
      */
     private $updatedAt;
 
+    /**
+     * @Assert\Image()
+     */
+    private $file;
 
     /**
      * Get id
@@ -579,7 +593,6 @@ class Job
     {
         $this->setIsActivated(true);
     }
-
     public function extend()
     {
         if (!$this->expiresSoon())
@@ -600,10 +613,34 @@ class Job
     public function setFile($file)
     {
         $this->file = $file;
+
         if($file) {
             // we need to change the logo to let Doctrine know our Job object has changed;
             // that's because Doctrine does not monitor the $file property
             $this->logo = md5(uniqid()).'.'.$file->guessExtension();
         }
     }
+
+    /**
+     * @JMS\VirtualProperty
+     * @JMS\SerializedName("category_name")
+     *
+     * @return string
+     */
+    public function getCategoryName()
+    {
+        return $this->getCategory()->getName();
+    }
+
+    /**
+     * @JMS\VirtualProperty
+     * @JMS\SerializedName("logo_path")
+     *
+     * @return string
+     */
+    public function getLogoPath()
+    {
+        return $this->getLogo() ? 'uploads/jobs/' . $this->getLogo() : null;
+    }
 }
+

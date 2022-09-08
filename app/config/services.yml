@@ -1,7 +1,7 @@
 # Learn more about services, parameters and containers at
 # https://symfony.com/doc/current/service_container.html
 parameters:
-    #parameter_name: value
+#parameter_name: value
 
 services:
     #service_name:
@@ -16,3 +16,20 @@ services:
         tags:
             - { name: doctrine.event_listener, event: prePersist }
             - { name: doctrine.event_listener, event: preUpdate }
+    app.admin.category:
+        class: AppBundle\Admin\CategoryAdmin
+        arguments: [~, AppBundle\Entity\Category, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Jobeet, label: Categories }
+
+    app.admin.job:
+        class: AppBundle\Admin\JobAdmin
+        arguments: [~, AppBundle\Entity\Job, AppBundle:JobAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Jobeet, label: Jobs }
+
+    app.admin.affiliate:
+        class: AppBundle\Admin\AffiliateAdmin
+        arguments: [~, AppBundle\Entity\Affiliate, AppBundle:AffiliateAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Jobeet, label: Affiliates }

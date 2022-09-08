@@ -13,7 +13,7 @@ class LoadAffiliateData extends AbstractFixture implements OrderedFixtureInterfa
         $affiliate = new Affiliate();
         $affiliate->setUrl('http://www.sensio-labs.com/');
         $affiliate->setEmail('fabien.potencier@example.com');
-//        $affiliate->setIsActive(true);
+        $affiliate->setIsActive(true);
         $affiliate->setToken('sensio_labs');
         $affiliate->addCategory($this->getReference('category-programming'));
         $em->persist($affiliate);
@@ -21,7 +21,7 @@ class LoadAffiliateData extends AbstractFixture implements OrderedFixtureInterfa
         $affiliate = new Affiliate();
         $affiliate->setUrl('/');
         $affiliate->setEmail('fabien.potencier@example.com');
-//        $affiliate->setIsActive(false);
+        $affiliate->setIsActive(false);
         $affiliate->setToken('symfony');
         $affiliate->addCategory($this->getReference('category-design'));
         $affiliate->addCategory($this->getReference('category-programming'));
